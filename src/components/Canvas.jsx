@@ -1,70 +1,182 @@
-import React, {useRef, useEffect, useState} from 'react'
+import React, {useRef, useEffect, useState, useCallback} from 'react'
+import {storage,imageRef} from "../firebase";
 
 const ClickMode = {"GetColor": 1, "Draw": 2, "SetText": 3};
 
-
 export default function Canvas(props) {
-  const {width, height, imageToShow, textToShow} = props;
+  const {width, height, imageToShow, textToShow, imgElement} = props;
   const imgRef = useRef(null);
   const canvasRef = useRef(null);
-  const [pos, setPos] = useState({x:0, y:0});
+  const [mousePosition, setMousePosition] = useState({x:0, y:0});
   const [clickMode, setClickMode] = useState(ClickMode.GetColor);
   const [color, setColor] = useState({r:0, g:0, b:0});
+  const [isPainting, setIsPainting] = useState(false);
+  const [brushPixel, setBrushPixel] = useState(10);
+  const [undoList, setUndoList] = useState([]);
+  // const [img, setImg] = useState(new Image());
+  console.log(props)
+
+  const restoreState = (canvas, ctx) => {
+    const newUndoList = undoList.push(canvas);
+    setUndoList(newUndoList);
+
+    const restore_state = undoList.pop();
+    const img = new Element('img', {'src': restore_state});
+    img.onload = () => {
+      ctx.clearRect(0,0,width, height);
+      ctx.drawImage(img, 0,0, width, height, 0,0,width, height);
+    }
+  }
+  
+
+  const drawLine = (originalMousePosition, newMousePosition) => {
+    if (!canvasRef.current || clickMode !== ClickMode.Draw) {
+        return;
+    }
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    if (context) {
+        context.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
+        context.lineJoin = 'round';
+        context.lineWidth = brushPixel;
+
+        context.beginPath();
+        undoList.push(canvasRef.current)
+        context.moveTo(originalMousePosition.x, originalMousePosition.y);
+        context.lineTo(newMousePosition.x, newMousePosition.y);
+        context.closePath();
+        context.stroke();
+    }
+  };
+
+  const paint = useCallback(
+    (event) => {
+        if (isPainting) {
+            const newMousePosition = getCoordinates(event);
+            if (mousePosition && newMousePosition) {
+                drawLine(mousePosition, newMousePosition);
+                setMousePosition(newMousePosition);
+            }
+        }
+    },
+    [isPainting, mousePosition]
+  );
+
+  const exitPaint = useCallback(() => {
+    setIsPainting(false);
+  }, []);
+
+  const getCoordinates = (event) => {
+      if (!canvasRef.current) {
+          return;
+      }
+
+      const canvas = canvasRef.current;
+      return {x: event.pageX - canvas.offsetLeft, y: event.pageY - canvas.offsetTop};
+  };
+
+  const startPaint = useCallback((event) => {
+      const coordinates = getCoordinates(event);
+      if (coordinates) {
+          setIsPainting(true);
+          setMousePosition(coordinates);
+      }
+  }, []);
+
+  
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    
-    img.src=imageToShow;
-    img.onload = () => {
+    if (imgElement) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      console.log(imgElement)
+      console.log(typeof(imgElement))
+      ctx.drawImage(imgElement, 0,0, width, height);
+      img.onload = function () {
+        
+      }
+      img.src=imageToShow;
+      console.log(imageToShow)
       console.log(img)
-      ctx.drawImage(img, 0,0);
-      ctx.fillStyle = "black";
-      ctx.fillText(textToShow, 10, 180);
     }
-    const constDataURL = canvas.toDataURL();
-    console.log(constDataURL);
-  }, []);
+  }, [imgElement]);
+
+  useEffect(() => {
+      if (!canvasRef.current ) {
+          return;
+      }
+      const canvas = canvasRef.current;
+      canvas.addEventListener('mousedown', startPaint);
+      return () => {
+          canvas.removeEventListener('mousedown', startPaint);
+      };
+  }, [startPaint]);
+
+  useEffect(() => {
+    if (!canvasRef.current) {
+        return;
+    }
+    const canvas = canvasRef.current;
+    canvas.addEventListener('mousemove', paint);
+    return () => {
+        canvas.removeEventListener('mousemove', paint);
+    };
+  }, [paint]);
+
+  useEffect(() => {
+    if (!canvasRef.current) {
+        return;
+    }
+    const canvas = canvasRef.current;
+    canvas.addEventListener('mouseup', exitPaint);
+    canvas.addEventListener('mouseleave', exitPaint);
+    return () => {
+        canvas.removeEventListener('mouseup', exitPaint);
+        canvas.removeEventListener('mouseleave', exitPaint);
+    };
+  }, [exitPaint]);
+
+  
 
   const canvasDrawHandler = (e) => {
     const newPos = {x: e.nativeEvent.clientX, y: e.nativeEvent.clientY}
-    setPos(newPos);
+    
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const rect = canvas.getBoundingClientRect();
     console.log(clickMode)
-    if (clickMode === ClickMode.Draw) {
-      const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 10,10);
-      const pix = imgData.data;
-      for (var i = 0, n = pix.length; i < n; i += 4) {
-        pix[i  ] = 255 - pix[i  ]; // red
-        pix[i+1] = 255 - pix[i+1]; // green
-        pix[i+2] = 255 - pix[i+2]; // blue
-        // i+3 is alpha (the fourth element)
-      }
-      ctx.putImageData(imgData, newPos.x - rect.left, newPos.y - rect.top,);
-    } else if (clickMode === ClickMode.GetColor) {
-      const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
-      console.log(imgData.data);
-      setColor({r:imgData.data[0], g:imgData.data[1], b:imgData.data[2]});
-    }
+
+    const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
+    console.log(imgData.data);
+    setColor({r:imgData.data[0], g:imgData.data[1], b:imgData.data[2]});
+  }
+
+  const uploadHandler = async () => {
+    const blob = await new Promise(resolve => canvasRef.current.toBlob(resolve));
+    console.log(blob)
+    await imageRef.child("name1").put(blob);
   }
 
   
 
   return (
     <div>
-      {/* <div>
-        <h3>Original Image</h3>
-        <img ref={imgRef} src={imageToShow}/>
-      </div> */}
       <button onClick={() => setClickMode(ClickMode.GetColor)}>Get Color</button>
       <button onClick={() => setClickMode(ClickMode.Draw)}>Draw</button>
+      <h1>{clickMode}</h1>
+      <select value="Brush Size" onChange={(e) => setBrushPixel(e.target.value)}>
+        <option value={10}>10px</option>
+        <option value={20}>20px</option>
+        <option value={30}>30px</option>
+        <option value={40}>40px</option>
+        <option value={50}>50px</option>
+      </select>
+      <button onClick={uploadHandler}>Upload changed</button>
+      <button onClick={restoreState}>Undo List</button>
       <div>
         <h3>Canvas Image </h3>
-        
-        <canvas onMous={canvasDrawHandler}ref={canvasRef} width={width} height={height}/>
+        <canvas onClick={canvasDrawHandler}ref={canvasRef} width={width} height={height}/>
       </div>
     </div>
   )

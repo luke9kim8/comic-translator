@@ -41,6 +41,7 @@ export default function ImageUpload() {
   const [image, setImage] = useState(null);
   const [dimensions, setDimensions] = useState({});
   const [tempImageUrl, setTempImageUrl] = useState("");
+  const [imgElement, setImgElement] = useState(null);
 
   const onDropCallback = useCallback(async (acceptedFile) => {
     setUploading(true);
@@ -61,22 +62,29 @@ export default function ImageUpload() {
     img.onload = () => {
       resolve({
         height: img.height,
-        width: img.width
+        width: img.width,
+        img: img
       })
     }
     img.src = dataURL
   })
 
+  const getObjectUrl = file => new Promise(resolve => {
+    resolve(URL.createObjectURL(file))
+  })
+
   const handleChange = async (e) => {
     if (e.target.files[0]) {
       const imageFile = e.target.files[0];
-      // console.log
       setImage(imageFile);
-      const imgURL = URL.createObjectURL(e.target.files[0]);
+      // const imgURL = URL.createObjectURL(e.target.files[0]);
+      const imgURL = await getObjectUrl(imageFile);
+      console.log(imgURL);
       setTempImageUrl(imgURL);
-      const dimensions = await getHeightAndWidthFromDataUrl(imgURL);
-      console.log(dimensions)
-      setDimensions(dimensions);
+      const response = await getHeightAndWidthFromDataUrl(imgURL);
+      console.log(response)
+      setDimensions({height:response.height, width:response.width});
+      setImgElement(response.img)
     }
   }
 
@@ -103,7 +111,8 @@ export default function ImageUpload() {
                 imageToShow={tempImageUrl}
                 textToShow="Blah blah"
                 width={dimensions.width}
-                height={dimensions.height}/>}
+                height={dimensions.height}
+                imgElement={imgElement}/>}
     </div>
   )
 }
