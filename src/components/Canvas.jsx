@@ -87,18 +87,10 @@ export default function Canvas(props) {
 
   useEffect(() => {
     if (imgElement) {
+      console.log(imgElement);
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
-      const img = new Image();
-      console.log(imgElement)
-      console.log(typeof(imgElement))
       ctx.drawImage(imgElement, 0,0, width, height);
-      img.onload = function () {
-        
-      }
-      img.src=imageToShow;
-      console.log(imageToShow)
-      console.log(img)
     }
   }, [imgElement]);
 
@@ -140,6 +132,7 @@ export default function Canvas(props) {
   
 
   const canvasDrawHandler = (e) => {
+
     const newPos = {x: e.nativeEvent.clientX, y: e.nativeEvent.clientY}
     
     const canvas = canvasRef.current;
@@ -150,20 +143,39 @@ export default function Canvas(props) {
     const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
     console.log(imgData.data);
     setColor({r:imgData.data[0], g:imgData.data[1], b:imgData.data[2]});
+    if (clickMode === ClickMode.GetColor) {
+      const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
+      console.log(imgData.data);
+      setColor({r:imgData.data[0], g:imgData.data[1], b:imgData.data[2]});
+    } 
+    else if (clickMode === ClickMode.SetText) {
+
+      const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
+      var input = document.getElementById("userInput").value;
+      var fontInput = document.getElementById("fontInput").value;
+      ctx.font = fontInput;
+      ctx.fillText(input, newPos.x - rect.left, newPos.y - rect.top);
+
+      
+    }
   }
 
   const uploadHandler = async () => {
     const blob = await new Promise(resolve => canvasRef.current.toBlob(resolve));
     console.log(blob)
     await imageRef.child("name1").put(blob);
+
   }
 
   
+
+
 
   return (
     <div>
       <button onClick={() => setClickMode(ClickMode.GetColor)}>Get Color</button>
       <button onClick={() => setClickMode(ClickMode.Draw)}>Draw</button>
+
       <h1>{clickMode}</h1>
       <select value="Brush Size" onChange={(e) => setBrushPixel(e.target.value)}>
         <option value={10}>10px</option>
@@ -177,6 +189,21 @@ export default function Canvas(props) {
       <div>
         <h3>Canvas Image </h3>
         <canvas onClick={canvasDrawHandler}ref={canvasRef} width={width} height={height}/>
+      </div>
+      <button onClick={() => setClickMode(ClickMode.SetText)}>Set Text</button>
+      
+      <div>
+        <h3>Canvas Image </h3>
+        
+        <canvas onClick={canvasDrawHandler}ref={canvasRef} width={width} height={height}/>
+        <input type="text" id="userInput"></input>
+
+        <select name="fonts" id="fontInput">
+          <option value="30px Arial">Arial</option>
+          <option value="30px Georgia">Georgia</option>
+          <option value="30px Papyrus">Papyrus</option>
+        </select>
+
       </div>
     </div>
   )
