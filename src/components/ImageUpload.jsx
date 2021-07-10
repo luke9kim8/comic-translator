@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import Dropzone from './Dropzone';
+// import Dropzone from './Dropzone';
 import {storage,imageRef} from "../firebase";
 import Canvas from './Canvas';
 
