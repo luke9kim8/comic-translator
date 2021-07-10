@@ -7,8 +7,8 @@ function App() {
   console.log(process.env)
   return (
     <div className="App">
-      {/* <ImageUpload/> */}
-      <h1>asdf</h1>
+      <ImageUpload/>
+      {/* <h1>asdf</h1> */}
       {console.log(process.env)}
     </div>
   );

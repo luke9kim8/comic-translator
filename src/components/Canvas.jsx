@@ -38,28 +38,6 @@ export default function Canvas(props) {
 
   const canvasDrawHandler = (e) => {
 
-    handleUndo = () => {
-      if (historyStep === 0) {
-        return;
-      }
-      historyStep -= 1;
-      const previous = history[historyStep];
-      this.setState({
-        position: previous
-      });
-    };
-
-    handleRedo = () => {
-      if (historyStep === history.length - 1) {
-        return;
-      }
-      historyStep += 1;
-      const next = history[historyStep];
-      this.setState({
-        position: next
-      });
-    };
-
     const newPos = {x: e.nativeEvent.clientX, y: e.nativeEvent.clientY}
     setPos(newPos);
     const canvas = canvasRef.current;
@@ -88,11 +66,10 @@ export default function Canvas(props) {
     } 
     else if (clickMode === ClickMode.SetText) {
 
-
-
       const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
       var input = document.getElementById("userInput").value;
-      ctx.font = "30px Arial";
+      var fontInput = document.getElementById("fontInput").value;
+      ctx.font = fontInput;
       ctx.fillText(input, newPos.x - rect.left, newPos.y - rect.top);
 
       
@@ -112,15 +89,19 @@ export default function Canvas(props) {
       <button onClick={() => setClickMode(ClickMode.GetColor)}>Get Color</button>
       <button onClick={() => setClickMode(ClickMode.Draw)}>Draw</button>
       <button onClick={() => setClickMode(ClickMode.SetText)}>Set Text</button>
-
-      <button text="undo" onClick={this.handleUndo} />
-      <button text="redo" x={40} onClick={this.handleRedo} />
       
       <div>
         <h3>Canvas Image </h3>
         
         <canvas onClick={canvasDrawHandler}ref={canvasRef} width={width} height={height}/>
         <input type="text" id="userInput"></input>;
+
+        <select name="fonts" id="fontInput">
+          <option value="30px Arial">Arial</option>
+          <option value="30px Georgia">Georgia</option>
+          <option value="30px Papyrus">Papyrus</option>
+        </select>
+
       </div>
     </div>
   )
