@@ -12,21 +12,7 @@ export default function Canvas(props) {
   const [color, setColor] = useState({r:0, g:0, b:0});
   const [isPainting, setIsPainting] = useState(false);
   const [brushPixel, setBrushPixel] = useState(10);
-  const [undoList, setUndoList] = useState([]);
-  // const [img, setImg] = useState(new Image());
-  console.log(props)
-
-  const restoreState = (canvas, ctx) => {
-    const newUndoList = undoList.push(canvas);
-    setUndoList(newUndoList);
-
-    const restore_state = undoList.pop();
-    const img = new Element('img', {'src': restore_state});
-    img.onload = () => {
-      ctx.clearRect(0,0,width, height);
-      ctx.drawImage(img, 0,0, width, height, 0,0,width, height);
-    }
-  }
+  const [drawList, setDrawList] = useState([]);
   
 
   const drawLine = (originalMousePosition, newMousePosition) => {
@@ -39,9 +25,8 @@ export default function Canvas(props) {
         context.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
         context.lineJoin = 'round';
         context.lineWidth = brushPixel;
-
+        setDrawList(drawList);
         context.beginPath();
-        undoList.push(canvasRef.current)
         context.moveTo(originalMousePosition.x, originalMousePosition.y);
         context.lineTo(newMousePosition.x, newMousePosition.y);
         context.closePath();
@@ -89,16 +74,7 @@ export default function Canvas(props) {
     if (imgElement) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
-      const img = new Image();
-      console.log(imgElement)
-      console.log(typeof(imgElement))
       ctx.drawImage(imgElement, 0,0, width, height);
-      img.onload = function () {
-        
-      }
-      img.src=imageToShow;
-      console.log(imageToShow)
-      console.log(img)
     }
   }, [imgElement]);
 
@@ -173,7 +149,7 @@ export default function Canvas(props) {
         <option value={50}>50px</option>
       </select>
       <button onClick={uploadHandler}>Upload changed</button>
-      <button onClick={restoreState}>Undo List</button>
+      {/* <button onClick={undoHandler}>Undo List</button> */}
       <div>
         <h3>Canvas Image </h3>
         <canvas onClick={canvasDrawHandler}ref={canvasRef} width={width} height={height}/>

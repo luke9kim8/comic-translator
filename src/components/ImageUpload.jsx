@@ -2,6 +2,8 @@ import React, {useCallback, useState} from 'react';
 // import Dropzone from './Dropzone';
 import {storage,imageRef} from "../firebase";
 import Canvas from './Canvas';
+// import 'tui-image-editor/dist/tui-image-editor.css';
+// import ImageEditor from '@toast-ui/react-image-editor';
 
 const baseStyle = {
   flex: 1,
@@ -106,6 +108,7 @@ export default function ImageUpload() {
           disabled={dropDisabled}/> */}
           <input type="file" onChange={handleChange}/>
           <button onClick={handleUpload}>Upload</button>
+          
           {tempImageUrl 
             && <Canvas 
                 imageToShow={tempImageUrl}
@@ -113,6 +116,7 @@ export default function ImageUpload() {
                 width={dimensions.width}
                 height={dimensions.height}
                 imgElement={imgElement}/>}
+          {/* <ImageEditor/> */}
     </div>
   )
 }

@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+.Layout {
+  display: flex;
+  justify-content: space-around;
+}
+
+.nav {
+  display: flex;
+}
+.navBtn {
+  border-radius: 20px;
+  background-color: rgb(252, 224, 8);
+  vertical-align: middle;
+  height:30px;
+  padding: 10px;
+  margin-left: 50px;
+  line-height: 30px;
+}
