@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react';
-// import Dropzone from './Dropzone';
 import {storage,imageRef} from "../firebase";
 import Canvas from './Canvas';
+import './site.css';
 // import 'tui-image-editor/dist/tui-image-editor.css';
 // import ImageEditor from '@toast-ui/react-image-editor';
 
@@ -102,8 +102,13 @@ export default function ImageUpload() {
 
   // }
 
+  function resizeDimension(){
+    var canvasWidth = dimensions.width*((window.innerWidth * 0.7)/dimensions.width);
+    var canvasHeight = dimensions.height*((window.innerWidth * 0.7)/dimensions.width);
+    return {width:canvasWidth, height:canvasHeight}
+  }
   return (
-    <div>
+    <div id="workspace">
       {/* <Dropzone onDrop={onDropCallback} 
           baseStyle={baseStyle} 
           activeStyle={acceptStyle}
@@ -115,8 +120,10 @@ export default function ImageUpload() {
             && <Canvas 
                 imageToShow={tempImageUrl}
                 textToShow="Blah blah"
-                width={dimensions.width}
-                height={dimensions.height}
+                // width={dimensions.width}
+                // height={dimensions.height}
+                width={resizeDimension().width}
+                height={resizeDimension().height}
                 imgElement={imgElement}/>}
           {/* <ImageEditor/> */}
     </div>

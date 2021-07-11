@@ -1,5 +1,10 @@
 import React, {useRef, useEffect, useState, useCallback} from 'react'
 import {storage,imageRef, db} from "../firebase";
+import './site.css';
+import {ImEyedropper} from "react-icons/im";
+import {BiPencil} from "react-icons/bi";
+import {VscTextSize} from "react-icons/vsc";
+
 
 const ClickMode = {"GetColor": 1, "Draw": 2, "SetText": 3};
 
@@ -72,6 +77,7 @@ export default function Canvas(props) {
 
   useEffect(() => {
     if (imgElement) {
+      console.log(imgElement);
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
       ctx.drawImage(imgElement, 0,0, width, height);
@@ -116,6 +122,7 @@ export default function Canvas(props) {
   
 
   const canvasDrawHandler = (e) => {
+
     const newPos = {x: e.nativeEvent.clientX, y: e.nativeEvent.clientY}
     
     const canvas = canvasRef.current;
@@ -126,6 +133,22 @@ export default function Canvas(props) {
     const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
     console.log(imgData.data);
     setColor({r:imgData.data[0], g:imgData.data[1], b:imgData.data[2]});
+    if (clickMode === ClickMode.GetColor) {
+      const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
+      console.log(imgData.data);
+      setColor({r:imgData.data[0], g:imgData.data[1], b:imgData.data[2]});
+    } 
+    else if (clickMode === ClickMode.SetText) {
+
+      const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
+      var input = document.getElementById("userInput").value;
+      var fontInput = document.getElementById("fontInput").value;
+      var fontSizeInput = document.getElementById("fontSizeInput").value;
+      ctx.font = fontSizeInput + '' + fontInput;
+      ctx.fillText(input, newPos.x - rect.left, newPos.y - rect.top);
+
+      
+    }
   }
 
   const uploadHandler = async () => {
@@ -141,21 +164,66 @@ export default function Canvas(props) {
 
   
 
+  function iconControl(){
+    if (clickMode===1){
+      return <ImEyedropper size={50} />
+    }
+    if (clickMode===2){
+      return <BiPencil size={50} />
+    }
+    if (clickMode===3){
+      return <VscTextSize size={50} />
+    }
+  }
   return (
     <div>
-      <button onClick={() => setClickMode(ClickMode.GetColor)}>Get Color</button>
-      <button onClick={() => setClickMode(ClickMode.Draw)}>Draw</button>
-      <h1>{clickMode}</h1>
-      <select value="Brush Size" onChange={(e) => setBrushPixel(e.target.value)}>
-        <option value={10}>10px</option>
-        <option value={20}>20px</option>
-        <option value={30}>30px</option>
-        <option value={40}>40px</option>
-        <option value={50}>50px</option>
-      </select>
-      <button onClick={uploadHandler}>Upload changed</button>
-      {/* <button onClick={undoHandler}>Undo List</button> */}
-      <div>
+      <div class="optionsBanner">
+        <div class="buttons">
+          <button id="getColorBtn" onClick={() => setClickMode(ClickMode.GetColor)}>Get Color</button>
+          <button id="drawBtn" onClick={() => setClickMode(ClickMode.Draw)}>Draw</button>
+        </div><br/>
+        {
+          iconControl()
+        }
+        <br/>
+
+        <div class="settings">
+          <select class="brushSize" value="Brush Size" onChange={(e) => setBrushPixel(e.target.value)}>
+            <option value={10}>10px</option>
+            <option value={20}>20px</option>
+            <option value={30}>30px</option>
+            <option value={40}>40px</option>
+            <option value={50}>50px</option>
+          </select>
+          <button id="uploadChanged" onClick={uploadHandler}>Upload changed</button>
+          
+          <button id="setTextBtn" onClick={() => setClickMode(ClickMode.SetText)}>Set Text</button>
+        </div>
+        
+        <div class="textSettings">
+          <input type="text" id="userInput"></input>
+
+          <select name="fonts" id="fontInput">
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Papyrus">Papyrus</option>
+          </select>
+
+          <select name="fontSize" id="fontSizeInput">
+            <option value="10px ">10px</option>
+            <option value="20px ">20px</option>
+            <option value="30px ">30px</option>
+            <option value="40px ">40px</option>
+            <option value="50px ">50px</option>
+          </select>
+
+        </div>
+        <input id="ogAuth"></input>
+        <input id="translator"></input>
+      </div>
+
+      
+      <div class="canvasImage">
         <h3>Canvas Image </h3>
         <canvas onClick={canvasDrawHandler} ref={canvasRef} width={width} height={height}/>
       </div>

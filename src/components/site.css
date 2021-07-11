@@ -1,0 +1,87 @@
+#workspace{
+    background-color: rgb(241, 241, 241);
+}
+.optionsBanner {
+    width: 25%;
+    height:100%;
+    float: right;
+    background-color: rgb(231, 229, 229);
+    border: 10px black;
+}
+.canvasImage {
+    float: left;
+}
+#uploadBtn{
+    background-color: #d0df00; 
+    border: none;  
+    font: bold;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 15px;
+}
+.buttons {
+    text-align: center;
+    margin: auto;
+    display: inline-flex;
+    justify-content: center;
+}
+#getColorBtn, #drawBtn {
+    border:none;
+    background-color: #d8d7d7; 
+    font-size: 20px;
+    padding: 10px;
+}
+#getColorBtn:hover, #drawBtn:hover {
+    background-color: #a7a7a7; 
+}
+#getColorBtn:focus, #drawBtn:focus, #setTextBtn:focus {
+    animation-name: changeColor;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+@keyframes changeColor {
+    0% {
+        background-color: #a7a7a7;
+    }
+    100% {
+        background-color: #fffc66; 
+    }
+}
+.settings {
+    text-align: center;
+    margin: auto;
+    display: inline-flex;
+    border-radius: 15px;
+    justify-content: center;
+}
+.brushSize, #uploadChanged, #setTextBtn{
+    border: none;
+    background-color: #e6e6e6; 
+    font-size: 20px;
+    padding: 10px;
+}
+#uploadChanged:hover, #setTextBtn:hover {
+    background-color: #c2c2c2; 
+}
+.textSettings {
+    text-align: center;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+}
+#userInput, #fontInput, #fontSizeInput {
+    font-size: 20px;
+    padding: 10px;
+    border: none;
+}
+#fontInput:hover, #fontSizeInput:hover {
+    background-color: #c2c2c2; 
+}
+#fontInput, #fontSizeInput {
+    background-color: #e4e3e3;
+}
+button {
+    cursor: pointer;
+}
