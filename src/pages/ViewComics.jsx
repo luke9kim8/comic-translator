@@ -8,7 +8,7 @@ export default function ViewComics() {
     
     const snapshot = await db.collection('edited-comics').get();
     const newComics = await Promise.all(snapshot.docs.map(async (doc) => {
-      const downloadURL = await imageRef.child(doc.data().name).getDownloadURL();
+      const downloadURL = await imageRef.child(doc.data().comicTitle).getDownloadURL();
       return {
         downloadURL,
         ...doc.data()

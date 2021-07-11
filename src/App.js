@@ -32,12 +32,6 @@ function App() {
             <Landing/> 
         }
       </main>
-      <footer>
-        <div style={{fontSize:"smaller"}}>
-        <a href='https://www.freepik.com/vectors/background'>Background vector created by starline - www.freepik.com</a>
-        <a href='https://www.freepik.com/vectors/background'>Background vector created by rawpixel.com - www.freepik.com</a>
-        </div>
-      </footer>
     </div>
   );
 }

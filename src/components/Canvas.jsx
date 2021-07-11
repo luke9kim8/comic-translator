@@ -18,6 +18,10 @@ export default function Canvas(props) {
   const [isPainting, setIsPainting] = useState(false);
   const [brushPixel, setBrushPixel] = useState(10);
   const [drawList, setDrawList] = useState([]);
+  const [comicTitle, setComicTitle] = useState("");
+  const [creatorName, setCreatorName] = useState("");
+  const [translatorName, setTranslatorName] = useState("");
+  const [source, setSource] = useState("");
   
 
   const drawLine = (originalMousePosition, newMousePosition) => {
@@ -152,14 +156,21 @@ export default function Canvas(props) {
   }
 
   const uploadHandler = async () => {
-    const blob = await new Promise(resolve => canvasRef.current.toBlob(resolve));
-    console.log(blob)
-    await imageRef.child(imgElement.name).put(blob);
-    db.collection("edited-comics").add({
-      name: imgElement.name
-    })
-    .then(docRef => console.log("Document written with id ", docRef.id))
-    .catch(err => console.log(err));
+    if (comicTitle && creatorName && translatorName && source) {
+      const blob = await new Promise(resolve => canvasRef.current.toBlob(resolve));
+      console.log(blob)
+      await imageRef.child(comicTitle).put(blob);
+      db.collection("edited-comics").add({
+        name: imgElement.name,
+        creatorName,
+        comicTitle,
+        translatorName,
+        source
+      })
+      .then(docRef => console.log("Document written with id ", docRef.id))
+      .catch(err => console.log(err));
+      alert("Uploaded comic successfully!!")
+    }
   }
 
   
@@ -188,7 +199,7 @@ export default function Canvas(props) {
         <br/>
 
         <div class="settings">
-          <select class="brushSize" value="Brush Size" onChange={(e) => setBrushPixel(e.target.value)}>
+          <select class="brushSize" value={brushPixel}onChange={(e) => setBrushPixel(e.target.value)}>
             <option value={10}>10px</option>
             <option value={20}>20px</option>
             <option value={30}>30px</option>
@@ -199,10 +210,10 @@ export default function Canvas(props) {
           
           <button id="setTextBtn" onClick={() => setClickMode(ClickMode.SetText)}>Set Text</button>
         </div>
-        
+        <input type="text" id="userInput"/>
         <div class="textSettings">
-          <input type="text" id="userInput"></input>
-
+          
+        <br/>
           <select name="fonts" id="fontInput">
             <option value="Arial">Arial</option>
             <option value="Georgia">Georgia</option>
@@ -219,16 +230,28 @@ export default function Canvas(props) {
 
         </div>
 
-        <div class="Credentials">
-          <label for="comicName">Title: </label>
-          <input id="comicTitle"></input>
+        <div className="Credentials">
+          <div  className="cred-entry">
+            <label for="comicName">Title: </label>
+            <input id="comicTitle" onChange={(e) => setComicTitle(e.target.value)}></input>
+          </div>
           <br/>
-          <label for="creatorName">Creator: </label>
-          <input id="ogAuth"></input>
+          <div  className="cred-entry">
+            <label for="creatorName" >Creator: </label>
+            <input id="ogAuth" onChange={(e) => setCreatorName(e.target.value)}></input>
+          </div>
           <br/>
-          <label for="translatorName">Translator: </label>
-          <input id="translator"></input>
-        </div>
+          <div  className="cred-entry">
+            <label for="translatorName">Translator: </label>
+            <input id="translator" onChange={(e) => setTranslatorName(e.target.value)}></input> 
+          </div>
+          <br/>
+          <div className="cred-entry">
+            <label for="source">Source: </label>
+            <input id="source" onChange={(e) => setSource(e.target.value)}></input>
+       
+          </div>
+          </div>
       </div>
 
       
