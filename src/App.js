@@ -21,7 +21,6 @@ function App() {
         {     
           (option === "Translate") ?
             <ImageUpload/> :<ViewComics/>
-
         }
       </main>
     </div>

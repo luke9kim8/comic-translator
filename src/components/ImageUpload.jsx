@@ -78,6 +78,7 @@ export default function ImageUpload() {
   const handleChange = async (e) => {
     if (e.target.files[0]) {
       const imageFile = e.target.files[0];
+      console.log(imageFile)
       setImage(imageFile);
       // const imgURL = URL.createObjectURL(e.target.files[0]);
       const imgURL = await getObjectUrl(imageFile);
@@ -86,18 +87,20 @@ export default function ImageUpload() {
       const response = await getHeightAndWidthFromDataUrl(imgURL);
       console.log(response)
       setDimensions({height:response.height, width:response.width});
+      response.img.name = imageFile.name;
       setImgElement(response.img)
     }
   }
 
 
   
-  const handleUpload = async() => {
+  // const handleUpload = async() => {
 
-    await imageRef.child(image.name).put(image);
-    const downloadURL = await imageRef.child(image.name).getDownloadURL();
-    console.log(downloadURL)
-  }
+  //   await imageRef.child(image.name).put(image);
+  //   const downloadURL = await imageRef.child(image.name).getDownloadURL();
+  //   console.log(downloadURL);
+
+  // }
 
   function resizeDimension(){
     var canvasWidth = dimensions.width*((window.innerWidth * 0.7)/dimensions.width);
@@ -111,10 +114,7 @@ export default function ImageUpload() {
           activeStyle={acceptStyle}
           rejectStyle={rejectStyle}
           disabled={dropDisabled}/> */}
-          <label for="fileUpload" class="custom-file-upload">
-          </label>
-          <input id="fileUpload" type="file" onChange={handleChange}/>
-          <button id="uploadBtn" onClick={handleUpload}>Upload</button>
+          <input type="file" onChange={handleChange}/>
           
           {tempImageUrl 
             && <Canvas 
