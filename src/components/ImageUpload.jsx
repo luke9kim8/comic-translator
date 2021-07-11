@@ -1,6 +1,9 @@
 import React, {useCallback, useState} from 'react';
 import {storage,imageRef} from "../firebase";
 import Canvas from './Canvas';
+import './site.css';
+// import 'tui-image-editor/dist/tui-image-editor.css';
+// import ImageEditor from '@toast-ui/react-image-editor';
 
 const baseStyle = {
   flex: 1,
@@ -96,22 +99,33 @@ export default function ImageUpload() {
     console.log(downloadURL)
   }
 
+  function resizeDimension(){
+    var canvasWidth = dimensions.width*((window.innerWidth * 0.7)/dimensions.width);
+    var canvasHeight = dimensions.height*((window.innerWidth * 0.7)/dimensions.width);
+    return {width:canvasWidth, height:canvasHeight}
+  }
   return (
-    <div>
+    <div id="workspace">
       {/* <Dropzone onDrop={onDropCallback} 
           baseStyle={baseStyle} 
           activeStyle={acceptStyle}
           rejectStyle={rejectStyle}
           disabled={dropDisabled}/> */}
-          <input type="file" onChange={handleChange}/>
-          <button onClick={handleUpload}>Upload</button>
+          <label for="fileUpload" class="custom-file-upload">
+          </label>
+          <input id="fileUpload" type="file" onChange={handleChange}/>
+          <button id="uploadBtn" onClick={handleUpload}>Upload</button>
+          
           {tempImageUrl 
             && <Canvas 
                 imageToShow={tempImageUrl}
                 textToShow="Blah blah"
-                width={dimensions.width}
-                height={dimensions.height}
+                // width={dimensions.width}
+                // height={dimensions.height}
+                width={resizeDimension().width}
+                height={resizeDimension().height}
                 imgElement={imgElement}/>}
+          {/* <ImageEditor/> */}
     </div>
   )
 }

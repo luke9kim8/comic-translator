@@ -1,5 +1,10 @@
 import React, {useRef, useEffect, useState, useCallback} from 'react'
 import {storage,imageRef} from "../firebase";
+import './site.css';
+import {ImEyedropper} from "react-icons/im";
+import {BiPencil} from "react-icons/bi";
+import {VscTextSize} from "react-icons/vsc";
+
 
 const ClickMode = {"GetColor": 1, "Draw": 2, "SetText": 3};
 
@@ -12,21 +17,7 @@ export default function Canvas(props) {
   const [color, setColor] = useState({r:0, g:0, b:0});
   const [isPainting, setIsPainting] = useState(false);
   const [brushPixel, setBrushPixel] = useState(10);
-  const [undoList, setUndoList] = useState([]);
-  // const [img, setImg] = useState(new Image());
-  console.log(props)
-
-  const restoreState = (canvas, ctx) => {
-    const newUndoList = undoList.push(canvas);
-    setUndoList(newUndoList);
-
-    const restore_state = undoList.pop();
-    const img = new Element('img', {'src': restore_state});
-    img.onload = () => {
-      ctx.clearRect(0,0,width, height);
-      ctx.drawImage(img, 0,0, width, height, 0,0,width, height);
-    }
-  }
+  const [drawList, setDrawList] = useState([]);
   
 
   const drawLine = (originalMousePosition, newMousePosition) => {
@@ -39,9 +30,8 @@ export default function Canvas(props) {
         context.strokeStyle = `rgb(${color.r},${color.g},${color.b})`;
         context.lineJoin = 'round';
         context.lineWidth = brushPixel;
-
+        setDrawList(drawList);
         context.beginPath();
-        undoList.push(canvasRef.current)
         context.moveTo(originalMousePosition.x, originalMousePosition.y);
         context.lineTo(newMousePosition.x, newMousePosition.y);
         context.closePath();
@@ -153,7 +143,8 @@ export default function Canvas(props) {
       const imgData = ctx.getImageData(newPos.x - rect.left, newPos.y - rect.top, 1,1);
       var input = document.getElementById("userInput").value;
       var fontInput = document.getElementById("fontInput").value;
-      ctx.font = fontInput;
+      var fontSizeInput = document.getElementById("fontSizeInput").value;
+      ctx.font = fontSizeInput + '' + fontInput;
       ctx.fillText(input, newPos.x - rect.left, newPos.y - rect.top);
 
       
@@ -167,42 +158,68 @@ export default function Canvas(props) {
 
   }
 
-  
-
-
-
+  function iconControl(){
+    if (clickMode===1){
+      return <ImEyedropper size={50} />
+    }
+    if (clickMode===2){
+      return <BiPencil size={50} />
+    }
+    if (clickMode===3){
+      return <VscTextSize size={50} />
+    }
+  }
   return (
     <div>
-      <button onClick={() => setClickMode(ClickMode.GetColor)}>Get Color</button>
-      <button onClick={() => setClickMode(ClickMode.Draw)}>Draw</button>
+      <div class="optionsBanner">
+        <div class="buttons">
+          <button id="getColorBtn" onClick={() => setClickMode(ClickMode.GetColor)}>Get Color</button>
+          <button id="drawBtn" onClick={() => setClickMode(ClickMode.Draw)}>Draw</button>
+        </div><br/>
+        {
+          iconControl()
+        }
+        <br/>
 
-      <h1>{clickMode}</h1>
-      <select value="Brush Size" onChange={(e) => setBrushPixel(e.target.value)}>
-        <option value={10}>10px</option>
-        <option value={20}>20px</option>
-        <option value={30}>30px</option>
-        <option value={40}>40px</option>
-        <option value={50}>50px</option>
-      </select>
-      <button onClick={uploadHandler}>Upload changed</button>
-      <button onClick={restoreState}>Undo List</button>
-      <div>
-        <h3>Canvas Image </h3>
-        <canvas onClick={canvasDrawHandler}ref={canvasRef} width={width} height={height}/>
-      </div>
-      <button onClick={() => setClickMode(ClickMode.SetText)}>Set Text</button>
-      
-      <div>
-        <h3>Canvas Image </h3>
+        <div class="settings">
+          <select class="brushSize" value="Brush Size" onChange={(e) => setBrushPixel(e.target.value)}>
+            <option value={10}>10px</option>
+            <option value={20}>20px</option>
+            <option value={30}>30px</option>
+            <option value={40}>40px</option>
+            <option value={50}>50px</option>
+          </select>
+          <button id="uploadChanged" onClick={uploadHandler}>Upload changed</button>
+          
+          <button id="setTextBtn" onClick={() => setClickMode(ClickMode.SetText)}>Set Text</button>
+        </div>
         
-        <canvas onClick={canvasDrawHandler}ref={canvasRef} width={width} height={height}/>
-        <input type="text" id="userInput"></input>
+        <div class="textSettings">
+          <input type="text" id="userInput"></input>
 
-        <select name="fonts" id="fontInput">
-          <option value="30px Arial">Arial</option>
-          <option value="30px Georgia">Georgia</option>
-          <option value="30px Papyrus">Papyrus</option>
-        </select>
+          <select name="fonts" id="fontInput">
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Papyrus">Papyrus</option>
+          </select>
+
+          <select name="fontSize" id="fontSizeInput">
+            <option value="10px ">10px</option>
+            <option value="20px ">20px</option>
+            <option value="30px ">30px</option>
+            <option value="40px ">40px</option>
+            <option value="50px ">50px</option>
+          </select>
+
+        </div>
+        <input id="ogAuth"></input>
+        <input id="translator"></input>
+      </div>
+
+      
+      <div class="canvasImage">
+        <h3>Canvas Image </h3>
+        <canvas onClick={canvasDrawHandler} ref={canvasRef} width={width} height={height}/>
 
       </div>
     </div>
