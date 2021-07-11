@@ -1,0 +1,23 @@
+.landing-card {
+  display: flex;
+  margin-top: 0px;
+  padding: 100px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.landing-text {
+  width: 500px;
+  text-align: left;
+  background-color: rgba(255, 250, 239, 0.756);
+  padding: 36px;
+  border-radius: 30px;
+  font-size: larger;
+}
+
+.landing-background {
+  position: absolute;
+  left: 0;
+  opacity: 90%;
+  z-index: -1;
+}
