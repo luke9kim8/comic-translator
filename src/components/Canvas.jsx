@@ -218,8 +218,17 @@ export default function Canvas(props) {
           </select>
 
         </div>
-        <input id="ogAuth"></input>
-        <input id="translator"></input>
+
+        <div class="Credentials">
+          <label for="comicName">Title: </label>
+          <input id="comicTitle"></input>
+          <br/>
+          <label for="creatorName">Creator: </label>
+          <input id="ogAuth"></input>
+          <br/>
+          <label for="translatorName">Translator: </label>
+          <input id="translator"></input>
+        </div>
       </div>
 
       
