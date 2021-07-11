@@ -1,4 +1,5 @@
 import firebase from 'firebase/app';
+import {getFirestore} from "firebase/firestore";
 import "firebase/storage"
 
 const firebaseConfig = {
@@ -15,5 +16,6 @@ firebase.initializeApp(firebaseConfig);
 const storage = firebase.storage();
 
 const imageRef = storage.ref('image')
+const db = firebase.firestore();
 
-export { storage, imageRef, firebase as default}
+export { storage, imageRef, db,firebase as default}

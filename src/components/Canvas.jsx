@@ -1,5 +1,5 @@
 import React, {useRef, useEffect, useState, useCallback} from 'react'
-import {storage,imageRef} from "../firebase";
+import {storage,imageRef, db} from "../firebase";
 
 const ClickMode = {"GetColor": 1, "Draw": 2, "SetText": 3};
 
@@ -131,7 +131,12 @@ export default function Canvas(props) {
   const uploadHandler = async () => {
     const blob = await new Promise(resolve => canvasRef.current.toBlob(resolve));
     console.log(blob)
-    await imageRef.child("name1").put(blob);
+    await imageRef.child(imgElement.name).put(blob);
+    db.collection("edited-comics").add({
+      name: imgElement.name
+    })
+    .then(docRef => console.log("Document written with id ", docRef.id))
+    .catch(err => console.log(err));
   }
 
   
@@ -152,7 +157,7 @@ export default function Canvas(props) {
       {/* <button onClick={undoHandler}>Undo List</button> */}
       <div>
         <h3>Canvas Image </h3>
-        <canvas onClick={canvasDrawHandler}ref={canvasRef} width={width} height={height}/>
+        <canvas onClick={canvasDrawHandler} ref={canvasRef} width={width} height={height}/>
       </div>
     </div>
   )
